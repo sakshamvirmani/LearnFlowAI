@@ -83,9 +83,10 @@ const GROQ_API_KEY = "YOUR_GROQ_API_KEY_HERE";
 ### 4. Use it
 
 1. Navigate to any YouTube video
-2. Click the LearnFlow AI icon in your toolbar
-3. Choose **Camera Mode** or **Manual Mode**
-4. Toggle the extension on — that's it
+2. **Open the video transcript** (click `...` below the video → *Show transcript*) — LearnFlow reads it to anchor AI responses to the exact moment you're at, rather than giving generic whole-video answers
+3. Click the LearnFlow AI icon in your toolbar
+4. Choose **Camera Mode** or **Manual Mode**
+5. Toggle the extension on — that's it
 
 ---
 
