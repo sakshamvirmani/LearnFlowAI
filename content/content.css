@@ -1,0 +1,453 @@
+#learnflow-utility-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 99997;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+#learnflow-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(300px, calc(100vw - 36px));
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(10px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  pointer-events: auto;
+}
+
+#learnflow-status-chip[data-state="ready"] {
+  background: rgba(236, 253, 245, 0.94);
+  border-color: #86efac;
+  color: #166534;
+}
+
+#learnflow-status-chip[data-state="waiting"],
+#learnflow-status-chip[data-state="paused"] {
+  background: rgba(254, 243, 199, 0.94);
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+#learnflow-status-chip[data-state="missing"] {
+  background: rgba(254, 226, 226, 0.95);
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.lf-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+#learnflow-camera-preview {
+  position: relative;
+  width: 124px;
+  height: 94px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
+  background: #111827;
+  pointer-events: auto;
+}
+
+#learnflow-camera-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lf-emotion-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: #6b7280;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.16);
+}
+
+.lf-emotion-dot[data-emotion="confused"] {
+  background: #2563eb;
+}
+
+.lf-emotion-dot[data-emotion="frustrated"] {
+  background: #dc2626;
+}
+
+.lf-emotion-dot[data-emotion="bored"] {
+  background: #6b7280;
+}
+
+#learnflow-sidebar {
+  position: fixed;
+  top: 60px;
+  right: -390px;
+  width: min(360px, calc(100vw - 32px));
+  max-height: calc(100vh - 76px);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 99998;
+  overflow-y: auto;
+  transition: right 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
+#learnflow-sidebar.visible {
+  right: 18px;
+}
+
+#learnflow-sidebar.lf-theme-dark {
+  background: #1a1a1a;
+  color: #f0f0f0;
+}
+
+#learnflow-sidebar.lf-theme-light {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+#lf-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(128,128,128,0.2);
+  font-weight: 600;
+}
+
+#lf-title {
+  flex: 1;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+#lf-close-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+#lf-close-btn:hover {
+  opacity: 1;
+}
+
+.lf-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lf-badge-confused,
+.lf-badge-summary {
+  background: rgba(37, 99, 235, 0.16);
+  color: #60a5fa;
+}
+
+.lf-badge-frustrated,
+.lf-badge-quiz {
+  background: rgba(220, 38, 38, 0.16);
+  color: #f87171;
+}
+
+.lf-badge-bored,
+.lf-badge-funfact {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+}
+
+.lf-badge-manual,
+.lf-badge-session {
+  background: rgba(15, 118, 110, 0.16);
+  color: #2dd4bf;
+}
+
+#learnflow-sidebar.lf-theme-light .lf-badge-confused,
+#learnflow-sidebar.lf-theme-light .lf-badge-summary {
+  color: #1d4ed8;
+}
+
+#learnflow-sidebar.lf-theme-light .lf-badge-frustrated,
+#learnflow-sidebar.lf-theme-light .lf-badge-quiz {
+  color: #b91c1c;
+}
+
+#learnflow-sidebar.lf-theme-light .lf-badge-bored,
+#learnflow-sidebar.lf-theme-light .lf-badge-funfact {
+  color: #374151;
+}
+
+#learnflow-sidebar.lf-theme-light .lf-badge-manual,
+#learnflow-sidebar.lf-theme-light .lf-badge-session {
+  color: #0f766e;
+}
+
+#lf-body {
+  padding: 16px;
+}
+
+.lf-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+  opacity: 0.75;
+}
+
+.lf-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(128,128,128,0.2);
+  border-top-color: #0f766e;
+  border-radius: 50%;
+  animation: lf-spin 0.8s linear infinite;
+}
+
+@keyframes lf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lf-card {
+  line-height: 1.6;
+}
+
+.lf-card h3,
+.lf-card h4 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.lf-card h4 {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.lf-card p {
+  margin: 0 0 8px;
+  opacity: 0.9;
+}
+
+.lf-card ul,
+.lf-card ol {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.lf-example,
+.lf-explanation {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.lf-example {
+  background: rgba(15, 118, 110, 0.12);
+  border-left: 3px solid #0f766e;
+}
+
+.lf-explanation {
+  background: rgba(128,128,128,0.12);
+}
+
+.lf-quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.lf-quiz-option {
+  border: 1px solid rgba(128,128,128,0.28);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 13px;
+}
+
+#learnflow-sidebar.lf-theme-dark .lf-quiz-option {
+  background: rgba(255,255,255,0.08);
+  color: #f0f0f0;
+}
+
+#learnflow-sidebar.lf-theme-light .lf-quiz-option {
+  background: #f9fafb;
+  color: #111827;
+}
+
+.lf-quiz-option:hover:not(:disabled) {
+  border-color: #0f766e;
+}
+
+.lf-quiz-option.lf-correct {
+  background: rgba(34,197,94,0.2) !important;
+  border-color: #22c55e;
+}
+
+.lf-quiz-option.lf-wrong {
+  background: rgba(239,68,68,0.2) !important;
+  border-color: #ef4444;
+}
+
+.lf-quiz-option:disabled {
+  cursor: default;
+}
+
+.lf-error {
+  color: #ef4444;
+  padding: 8px 0;
+}
+
+.lf-summary-counts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lf-summary-counts span {
+  padding: 7px;
+  border-radius: 8px;
+  background: rgba(128,128,128,0.12);
+  font-size: 12px;
+  text-align: center;
+}
+
+#lf-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(128,128,128,0.2);
+}
+
+.lf-feedback-btn {
+  flex: 1;
+  border: 1px solid rgba(128,128,128,0.22);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+#learnflow-sidebar.lf-theme-dark .lf-feedback-btn {
+  background: rgba(255,255,255,0.06);
+  color: #d1d5db;
+}
+
+#learnflow-sidebar.lf-theme-light .lf-feedback-btn {
+  background: #f9fafb;
+  color: #374151;
+}
+
+.lf-feedback-btn:hover {
+  background: rgba(15,118,110,0.12) !important;
+}
+
+#learnflow-manual-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 99996;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.26);
+  border-radius: 14px;
+  background: rgba(17, 24, 39, 0.92);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.3);
+  transform: translateX(-50%);
+  backdrop-filter: blur(14px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  max-width: min(680px, calc(100vw - 32px));
+}
+
+#learnflow-manual-bar.visible {
+  display: flex;
+}
+
+#learnflow-manual-bar button {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+#learnflow-manual-bar button:hover {
+  background: rgba(45, 212, 191, 0.24);
+}
+
+#learnflow-manual-bar [data-action="close"] {
+  width: 30px;
+  padding: 8px 0;
+}
+
+.lf-toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 99999;
+  max-width: 300px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #222;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  #learnflow-utility-stack {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  #learnflow-sidebar.visible {
+    right: 10px;
+  }
+
+  #learnflow-manual-bar {
+    width: calc(100vw - 20px);
+    justify-content: center;
+    border-radius: 12px;
+  }
+}

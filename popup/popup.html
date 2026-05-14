@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>LearnFlow AI</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup-shell">
+    <div class="header">
+      <div class="header-copy">
+        <p class="eyebrow">LearnFlow AI</p>
+        <h1>Learning controls</h1>
+      </div>
+      <label id="header-toggle" class="toggle hidden" aria-label="Enable LearnFlow AI">
+        <input type="checkbox" id="enabled-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="onboarding-intro" class="section">
+      <h2>Welcome</h2>
+      <p class="onboarding-copy">Stay focused and get help while you learn.</p>
+      <button id="intro-next-btn">Ok</button>
+    </div>
+
+    <div id="mode-chooser" class="section hidden">
+      <h2>Choose mode</h2>
+      <div class="mode-grid">
+        <button class="mode-card" data-mode="camera">
+          <span>Camera Mode</span>
+          <small>Detect learning signals from your webcam.</small>
+        </button>
+        <button class="mode-card" data-mode="manual">
+          <span>Manual Mode</span>
+          <small>Use action chips without starting the camera.</small>
+        </button>
+      </div>
+    </div>
+
+    <div id="manual-bar-mode-section" class="section hidden">
+      <h2>Choose manual bar</h2>
+      <div class="mode-grid" id="manual-bar-mode">
+        <button class="mode-card" data-manual-bar-mode="actions">
+          <span>Action Bar</span>
+          <small>Show Summary, Quiz, Fun Fact, Break Down, Key Points, and Encourage Me.</small>
+        </button>
+        <button class="mode-card" data-manual-bar-mode="emotions">
+          <span>Emotion Bar</span>
+          <small>Show Confused, Frustrated, and Bored buttons so you tell LearnFlow the emotion.</small>
+        </button>
+      </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+      <nav class="tabs" aria-label="LearnFlow sections">
+        <button class="tab-btn active" data-tab="controls">Controls</button>
+        <button class="tab-btn" data-tab="session">Session</button>
+        <button class="tab-btn" data-tab="history">History</button>
+      </nav>
+
+      <section id="tab-controls" class="tab-panel">
+        <div class="section mode-banner">
+          <div>
+            <span>Mode</span>
+            <strong id="mode-status">Checking...</strong>
+          </div>
+          <div class="mode-actions">
+            <button id="show-manual-bar-btn" class="secondary-btn compact-btn hidden">Show bar</button>
+            <button id="change-mode-btn" class="secondary-btn compact-btn">Change</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Status</h2>
+          <div class="status-list">
+            <div class="status-row">
+              <span>Extension</span>
+              <strong id="extension-status">Checking...</strong>
+            </div>
+            <div class="status-row">
+              <span>Current page</span>
+              <strong id="page-status">Checking...</strong>
+            </div>
+            <div class="status-row">
+              <span>Camera</span>
+              <strong id="camera-status">Checking...</strong>
+            </div>
+            <div class="status-row">
+              <span>Models</span>
+              <strong id="model-status">Checking...</strong>
+            </div>
+            <div class="status-row">
+              <span>YouTube video</span>
+              <strong id="video-status">Checking...</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="sensitivity-section" class="section">
+          <label>Sensitivity preset</label>
+          <div class="segmented" id="sensitivity-preset">
+            <button data-preset="low">Low</button>
+            <button data-preset="balanced" class="active">Balanced</button>
+            <button data-preset="high">High</button>
+          </div>
+          <small id="preset-label">Balanced: trigger after 3 of 5 readings.</small>
+        </div>
+
+        <details id="threshold-section" class="section advanced-section">
+          <summary>
+            <span>Per-emotion thresholds</span>
+            <span class="summary-arrow" aria-hidden="true"></span>
+          </summary>
+          <div class="advanced-body">
+            <label for="threshold-confused">Confused</label>
+            <input type="range" id="threshold-confused" min="2" max="5" value="3">
+            <small id="threshold-confused-label">Trigger after 3 of 5 readings</small>
+
+            <label for="threshold-frustrated">Frustrated</label>
+            <input type="range" id="threshold-frustrated" min="2" max="5" value="3">
+            <small id="threshold-frustrated-label">Trigger after 3 of 5 readings</small>
+
+            <label for="threshold-bored">Bored</label>
+            <input type="range" id="threshold-bored" min="2" max="5" value="3">
+            <small id="threshold-bored-label">Trigger after 3 of 5 readings</small>
+          </div>
+        </details>
+
+        <div id="cooldown-section" class="section">
+          <label for="cooldown">Cooldown between alerts</label>
+          <select id="cooldown">
+            <option value="30000">30 seconds</option>
+            <option value="60000">1 minute</option>
+            <option value="120000">2 minutes</option>
+            <option value="300000">5 minutes</option>
+          </select>
+        </div>
+
+        <details id="camera-preview-section" class="section advanced-section">
+          <summary>
+            <span>Camera preview</span>
+            <span class="summary-arrow" aria-hidden="true"></span>
+          </summary>
+          <div class="advanced-body">
+            <label class="check-row">
+              <input type="checkbox" id="show-camera-preview">
+              <span>Show preview</span>
+            </label>
+            <label for="camera-opacity">Preview opacity</label>
+            <input type="range" id="camera-opacity" min="0.2" max="1" step="0.1" value="0.7">
+            <small id="camera-opacity-label">70% opacity</small>
+            <label class="check-row">
+              <input type="checkbox" id="show-emotion-indicator">
+              <span>Show detected-emotion dot</span>
+            </label>
+          </div>
+        </details>
+
+
+        <button id="save-btn">Save preferences</button>
+        <p id="status-msg"></p>
+      </section>
+
+      <section id="tab-session" class="tab-panel hidden">
+        <div class="section">
+          <h2>Current session</h2>
+          <p id="session-meta" class="section-copy">Current session resets when you switch videos or reload the page.</p>
+          <div id="heatmap" class="heatmap">
+            <div class="heat-row" data-emotion="confused">
+              <span>Confused</span>
+              <div class="heat-track"><span></span></div>
+              <strong id="count-confused">0</strong>
+            </div>
+            <div class="heat-row" data-emotion="frustrated">
+              <span>Frustrated</span>
+              <div class="heat-track"><span></span></div>
+              <strong id="count-frustrated">0</strong>
+            </div>
+            <div class="heat-row" data-emotion="bored">
+              <span>Bored</span>
+              <div class="heat-track"><span></span></div>
+              <strong id="count-bored">0</strong>
+            </div>
+          </div>
+          <div class="session-actions">
+            <button id="clear-session-btn" class="secondary-btn">Clear current session</button>
+          </div>
+        </div>
+
+
+        <div class="section stats-grid">
+          <div>
+            <span>Total quiz score</span>
+            <strong id="quiz-score">0 / 0</strong>
+          </div>
+          <div>
+            <span>Current streak</span>
+            <strong id="quiz-streak">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-history" class="tab-panel hidden">
+        <div class="section">
+          <h2>Response history</h2>
+          <p class="section-copy history-note">Saved history stays until you clear it. LearnFlow currently keeps the latest 20 responses.</p>
+          <div class="history-actions">
+            <button id="download-history-btn" class="secondary-btn compact-btn">Download history</button>
+            <button id="clear-history-btn" class="secondary-btn compact-btn">Clear history</button>
+          </div>
+          <div id="history-list" class="history-list">
+            <p class="empty-state">No responses yet.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
