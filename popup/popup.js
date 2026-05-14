@@ -4,10 +4,13 @@ const PRESET_THRESHOLDS = {
   high: { confused: 2, frustrated: 2, bored: 2 }
 };
 
+const apiKeyEl = document.getElementById("api-key");
 const enabledEl = document.getElementById("enabled-toggle");
 const cooldownEl = document.getElementById("cooldown");
 const saveBtn = document.getElementById("save-btn");
+const saveKeyBtn = document.getElementById("save-key-btn");
 const statusMsg = document.getElementById("status-msg");
+const apiKeyMsg = document.getElementById("api-key-msg");
 const presetLabel = document.getElementById("preset-label");
 const showCameraPreviewEl = document.getElementById("show-camera-preview");
 const cameraOpacityEl = document.getElementById("camera-opacity");
@@ -33,6 +36,7 @@ const thresholdLabelEls = {
 };
 
 const extensionStatusEl = document.getElementById("extension-status");
+const apiKeyStatusEl = document.getElementById("api-key-status");
 const pageStatusEl = document.getElementById("page-status");
 const cameraStatusEl = document.getElementById("camera-status");
 const modelStatusEl = document.getElementById("model-status");
@@ -41,10 +45,18 @@ const modeStatusEl = document.getElementById("mode-status");
 
 const headerToggleEl = document.getElementById("header-toggle");
 const onboardingIntroEl = document.getElementById("onboarding-intro");
+const onboardingGroqEl = document.getElementById("onboarding-groq");
 const modeChooserEl = document.getElementById("mode-chooser");
+const apiKeySectionEl = document.getElementById("api-key-section");
 const mainAppEl = document.getElementById("main-app");
 const introNextBtn = document.getElementById("intro-next-btn");
+const groqNextBtn = document.getElementById("groq-next-btn");
+const editApiKeyBtn = document.getElementById("edit-api-key-btn");
 const changeModeBtn = document.getElementById("change-mode-btn");
+const deleteApiKeyBtn = document.getElementById("delete-api-key-btn");
+const deleteApiConfirmEl = document.getElementById("delete-api-confirm");
+const confirmDeleteApiKeyBtn = document.getElementById("confirm-delete-api-key-btn");
+const cancelDeleteApiKeyBtn = document.getElementById("cancel-delete-api-key-btn");
 const showManualBarBtn = document.getElementById("show-manual-bar-btn");
 const historyListEl = document.getElementById("history-list");
 const downloadHistoryBtn = document.getElementById("download-history-btn");
@@ -66,11 +78,8 @@ window.addEventListener("pagehide", () => {
   chrome.runtime.sendMessage({ type: "POPUP_CLOSED" });
 });
 
-introNextBtn.addEventListener("click", async () => {
-  onboardingComplete = true;
-  await sendRuntimeMessage({ type: "SAVE_SETTINGS", payload: { onboardingComplete: true } });
-  showView("mode");
-});
+introNextBtn.addEventListener("click", () => showView("groq"));
+groqNextBtn.addEventListener("click", () => showView("api"));
 
 document.querySelectorAll("#mode-chooser .mode-card").forEach((button) => {
   button.addEventListener("click", async () => {
@@ -116,6 +125,13 @@ Object.values(thresholdEls).forEach((input) => {
 });
 
 cameraOpacityEl.addEventListener("input", updateCameraOpacityLabel);
+
+editApiKeyBtn.addEventListener("click", () => {
+  apiKeyMsg.textContent = "";
+  deleteApiConfirmEl.classList.add("hidden");
+  showView("edit-api");
+  apiKeyEl.focus();
+});
 
 changeModeBtn.addEventListener("click", () => showView("mode"));
 
@@ -178,6 +194,44 @@ clearSessionBtn.addEventListener("click", async () => {
   flashMessage(statusMsg, "Current session cleared.", "ready");
 });
 
+saveKeyBtn.addEventListener("click", async () => {
+  const apiKey = apiKeyEl.value.trim();
+
+  if (!apiKey) {
+    apiKeyMsg.textContent = "Paste your Groq API key first.";
+    apiKeyMsg.style.color = "#b91c1c";
+    setStatusState(apiKeyStatusEl, "Missing", "missing");
+    return;
+  }
+
+  await sendRuntimeMessage({ type: "SAVE_API_KEY", apiKey });
+  onboardingComplete = true;
+  setStatusState(apiKeyStatusEl, "Saved", "ready");
+  deleteApiKeyBtn.classList.remove("hidden");
+  flashMessage(apiKeyMsg, "API key saved.", "ready");
+  showView("mode");
+  await refreshAll();
+});
+
+deleteApiKeyBtn.addEventListener("click", () => {
+  deleteApiConfirmEl.classList.remove("hidden");
+});
+
+cancelDeleteApiKeyBtn.addEventListener("click", () => {
+  deleteApiConfirmEl.classList.add("hidden");
+});
+
+confirmDeleteApiKeyBtn.addEventListener("click", async () => {
+  await sendRuntimeMessage({ type: "DELETE_API_KEY" });
+  apiKeyEl.value = "";
+  deleteApiConfirmEl.classList.add("hidden");
+  deleteApiKeyBtn.classList.add("hidden");
+  setStatusState(apiKeyStatusEl, "Missing", "missing");
+  flashMessage(apiKeyMsg, "API key deleted.", "missing");
+  showView("api");
+  await refreshLiveStatus();
+});
+
 saveBtn.addEventListener("click", async () => {
   const settings = {
     enabled: enabledEl.checked,
@@ -205,7 +259,7 @@ async function initializePopup() {
   modeChosen = Boolean(sessionMode?.modeChosen || settings?.modeChosen);
   liveModeChosen = modeChosen;
   currentMode = sessionMode?.currentMode || settings?.currentMode || "camera";
-  onboardingComplete = Boolean(settings?.onboardingComplete);
+  onboardingComplete = Boolean(settings?.onboardingComplete || settings?.apiKey);
   applySettingsToForm(settings || {});
 
   updateModeStatus();
@@ -216,11 +270,14 @@ async function initializePopup() {
 
 function resolveInitialView(settings) {
   if (!onboardingComplete) return "intro";
+  if (!settings.apiKey) return "api";
   if (!modeChosen) return "mode";
   return "main";
 }
 
 function applySettingsToForm(settings) {
+  apiKeyEl.value = settings.apiKey || "";
+  deleteApiKeyBtn.classList.toggle("hidden", !settings.apiKey);
   enabledEl.checked = settings.enabled !== false;
   cooldownEl.value = String(settings.cooldownMs || settings.cooldownMinutes || 120000);
   activePreset = settings.sensitivityPreset || "balanced";
@@ -245,6 +302,7 @@ function applySettingsToForm(settings) {
   updateCameraOpacityLabel();
   updateControlsVisibility();
   setStatusState(extensionStatusEl, enabledEl.checked ? "Ready" : "Paused", enabledEl.checked ? "ready" : "paused");
+  setStatusState(apiKeyStatusEl, settings.apiKey ? "Saved" : "Missing", settings.apiKey ? "ready" : "missing");
 }
 
 async function setMode(mode) {
@@ -257,13 +315,32 @@ async function setMode(mode) {
 
 function showView(view) {
   onboardingIntroEl.classList.add("hidden");
+  onboardingGroqEl.classList.add("hidden");
   modeChooserEl.classList.add("hidden");
+  apiKeySectionEl.classList.add("hidden");
   manualBarModeSectionEl.classList.add("hidden");
   mainAppEl.classList.add("hidden");
   headerToggleEl.classList.add("hidden");
 
   if (view === "intro") {
     onboardingIntroEl.classList.remove("hidden");
+    return;
+  }
+
+  if (view === "groq") {
+    onboardingGroqEl.classList.remove("hidden");
+    return;
+  }
+
+  if (view === "api") {
+    apiKeySectionEl.classList.remove("hidden");
+    return;
+  }
+
+  if (view === "edit-api") {
+    apiKeySectionEl.classList.remove("hidden");
+    mainAppEl.classList.remove("hidden");
+    headerToggleEl.classList.remove("hidden");
     return;
   }
 
@@ -361,6 +438,7 @@ async function refreshLiveStatus() {
     const reason = status?.reason || "UNKNOWN";
 
     setStatusState(extensionStatusEl, enabledEl.checked ? "Waiting" : "Paused", enabledEl.checked ? "waiting" : "paused");
+    setStatusState(apiKeyStatusEl, apiKeyEl.value.trim() ? "Saved" : "Missing", apiKeyEl.value.trim() ? "ready" : "missing");
     setStatusState(pageStatusEl, reason === "UNSUPPORTED_PAGE" ? "Unsupported page" : "No active tab", "missing");
     setStatusState(cameraStatusEl, !modeChosen || currentMode === "manual" ? "Off" : "Waiting", !modeChosen || currentMode === "manual" ? "paused" : "waiting");
     setStatusState(modelStatusEl, !modeChosen || currentMode === "manual" ? "Off" : "Waiting", !modeChosen || currentMode === "manual" ? "paused" : "waiting");
@@ -371,6 +449,7 @@ async function refreshLiveStatus() {
 
   if (!status.live) {
     setStatusState(extensionStatusEl, enabledEl.checked ? "Waiting" : "Paused", enabledEl.checked ? "waiting" : "paused");
+    setStatusState(apiKeyStatusEl, apiKeyEl.value.trim() ? "Saved" : "Missing", apiKeyEl.value.trim() ? "ready" : "missing");
     setStatusState(pageStatusEl, "YouTube watch page", "ready");
     setStatusState(cameraStatusEl, !modeChosen || currentMode === "manual" ? "Off" : "Waiting", !modeChosen || currentMode === "manual" ? "paused" : "waiting");
     setStatusState(modelStatusEl, !modeChosen || currentMode === "manual" ? "Off" : "Waiting", !modeChosen || currentMode === "manual" ? "paused" : "waiting");
@@ -392,6 +471,7 @@ async function refreshLiveStatus() {
     !live.enabled ? "paused" : live.chipTone === "ready" ? "ready" : "waiting"
   );
 
+  setStatusState(apiKeyStatusEl, live.hasApiKey ? "Saved" : "Missing", live.hasApiKey ? "ready" : "missing");
   setStatusState(pageStatusEl, "YouTube watch page", "ready");
   setStatusState(
     cameraStatusEl,

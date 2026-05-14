@@ -12,8 +12,7 @@
 
   "host_permissions": [
     "https://www.youtube.com/*",
-    "https://api.groq.com/*",
-    "http://localhost:1234/*"
+    "https://api.groq.com/*"
   ],
 
   "background": {

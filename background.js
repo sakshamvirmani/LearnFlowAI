@@ -1,18 +1,5 @@
-// Get a free API key at https://console.groq.com
-const GROQ_API_KEY = "YOUR_GROQ_API_KEY_HERE";
-
-// [LearnFlow AI] LLM provider switch
-const USE_LOCAL_LLM = false; // flip to false to use Groq
-
-const API_URL = USE_LOCAL_LLM
-  ? "http://localhost:1234/v1/chat/completions"
-  : "https://api.groq.com/openai/v1/chat/completions";
-
-const headers = USE_LOCAL_LLM
-  ? { "Content-Type": "application/json" }
-  : { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` };
-
-const MODEL = USE_LOCAL_LLM ? "llama-3.2-3b-instruct" : "llama-3.1-8b-instant";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 const DEFAULT_EMOTION_THRESHOLDS = {
   confused: 3,
@@ -41,6 +28,16 @@ const DEFAULT_QUIZ_STATS = {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "GET_AI_RESPONSE") {
     handleAIRequest(request.payload || {}).then(sendResponse);
+    return true;
+  }
+
+  if (request.type === "SAVE_API_KEY") {
+    saveApiKey(request.apiKey || "").then(sendResponse);
+    return true;
+  }
+
+  if (request.type === "DELETE_API_KEY") {
+    deleteApiKey().then(sendResponse);
     return true;
   }
 
@@ -76,7 +73,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.type === "OPEN_MANUAL_BAR") {
     getStoredSettings().then((settings) => {
-      if (!settings.enabled || settings.currentMode !== "manual") {
+      if (!settings.enabled || !settings.apiKey || settings.currentMode !== "manual") {
         sendResponse({ success: false });
         return;
       }
@@ -135,7 +132,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.commands.onCommand.addListener((command) => {
   if (command === "open-manual-bar") {
     getStoredSettings().then((settings) => {
-      if (!settings.enabled || settings.currentMode !== "manual") {
+      if (!settings.enabled || !settings.apiKey || settings.currentMode !== "manual") {
         return;
       }
 
@@ -150,12 +147,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 });
 
 async function handleAIRequest(payload) {
+  const { apiKey } = await getStoredSettings();
+
+  if (!apiKey) {
+    return { error: "No API key set. Please open the LearnFlow extension and add your Groq API key." };
+  }
+
   const intent = normalizeIntent(payload.intent, payload.emotion);
   const prompt = buildPrompt(intent, payload);
   const maxTokens = intent === "session_summary" ? 650 : 450;
 
   try {
     const parsed = await requestJSONCompletion({
+      apiKey,
       prompt,
       maxTokens,
       intent
@@ -166,9 +170,10 @@ async function handleAIRequest(payload) {
   }
 }
 
-async function requestJSONCompletion({ prompt, maxTokens, intent }) {
+async function requestJSONCompletion({ apiKey, prompt, maxTokens, intent }) {
   try {
     return await sendCompletionRequest({
+      apiKey,
       prompt,
       maxTokens,
       strictJSON: true
@@ -179,6 +184,7 @@ async function requestJSONCompletion({ prompt, maxTokens, intent }) {
     }
 
     return sendCompletionRequest({
+      apiKey,
       prompt: `${prompt}
 
 Return exactly one JSON object and no surrounding prose.`,
@@ -188,9 +194,9 @@ Return exactly one JSON object and no surrounding prose.`,
   }
 }
 
-async function sendCompletionRequest({ prompt, maxTokens, strictJSON }) {
+async function sendCompletionRequest({ apiKey, prompt, maxTokens, strictJSON }) {
   const requestBody = {
-    model: MODEL,
+    model: GROQ_MODEL,
     messages: [
       {
         role: "system",
@@ -202,13 +208,16 @@ async function sendCompletionRequest({ prompt, maxTokens, strictJSON }) {
     temperature: 0.2
   };
 
-  if (strictJSON && !USE_LOCAL_LLM) {
+  if (strictJSON) {
     requestBody.response_format = { type: "json_object" };
   }
 
-  const response = await fetch(API_URL, {
+  const response = await fetch(GROQ_API_URL, {
     method: "POST",
-    headers,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
     body: JSON.stringify(requestBody)
   });
 
@@ -234,18 +243,12 @@ async function sendCompletionRequest({ prompt, maxTokens, strictJSON }) {
   return parseJSONObjectFromText(content);
 }
 
-// [LearnFlow AI] Retry once when the local model returns malformed JSON
 function shouldRetryWithoutStrictJSON(err) {
   const message = String(err?.message || "");
   const apiError = err?.apiError || {};
   return apiError.code === "failed_generation"
     || message.includes("Failed to generate JSON")
-    || message.includes("failed_generation")
-    || message.includes("Expected ',' or '}' after property value in JSON")
-    || message.includes("Unexpected end of JSON input")
-    || message.includes("Unterminated string in JSON")
-    || message.includes("Bad control character in string literal in JSON")
-    || message.includes("Unexpected non-whitespace character after JSON");
+    || message.includes("failed_generation");
 }
 
 function parseJSONObjectFromText(text) {
@@ -491,6 +494,19 @@ async function getQuizStats() {
   return { ...DEFAULT_QUIZ_STATS, ...(data.quizStats || {}) };
 }
 
+async function saveApiKey(apiKey) {
+  await setLocalStorage({ apiKey });
+  await setSyncStorage({ onboardingComplete: true });
+  await relayToActiveYouTubeTab({ type: "API_KEY_UPDATED", hasApiKey: Boolean(apiKey) });
+  return { success: true, hasApiKey: Boolean(apiKey) };
+}
+
+async function deleteApiKey() {
+  await setLocalStorage({ apiKey: "" });
+  await relayToActiveYouTubeTab({ type: "API_KEY_UPDATED", hasApiKey: false });
+  return { success: true, hasApiKey: false };
+}
+
 async function relayPopupState(isOpen) {
   await relayToActiveYouTubeTab({ type: isOpen ? "POPUP_OPENED" : "POPUP_CLOSED" });
 }
@@ -564,14 +580,23 @@ async function getStoredSettings() {
     "cameraPreviewOpacity",
     "showEmotionIndicator",
     "manualBarMode",
-    "onboardingComplete"
+    "onboardingComplete",
+    "apiKey"
   ]);
+  const localData = await getLocalStorage(["apiKey"]);
   const sessionData = await getSessionStorage(["enabled"]);
   const sessionMode = await getSessionMode();
+
+  const apiKey = localData.apiKey || syncData.apiKey || "";
+
+  if (!localData.apiKey && syncData.apiKey) {
+    await setLocalStorage({ apiKey: syncData.apiKey });
+  }
 
   return normalizeSettings({
     ...DEFAULT_SETTINGS,
     ...syncData,
+    apiKey,
     enabled: sessionData.enabled === true,
     modeChosen: sessionMode.modeChosen,
     currentMode: sessionMode.currentMode
@@ -597,6 +622,7 @@ function normalizeSettings(raw) {
     cameraPreviewOpacity: clampOpacity(raw.cameraPreviewOpacity ?? DEFAULT_SETTINGS.cameraPreviewOpacity),
     showEmotionIndicator: raw.showEmotionIndicator === true,
     manualBarMode: raw.manualBarMode === "emotions" ? "emotions" : "actions",
+    apiKey: raw.apiKey || "",
     onboardingComplete: Boolean(raw.onboardingComplete),
     modeChosen: Boolean(raw.modeChosen),
     currentMode: raw.currentMode === "manual" ? "manual" : "camera"

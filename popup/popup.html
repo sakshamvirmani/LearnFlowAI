@@ -24,6 +24,33 @@
       <button id="intro-next-btn">Ok</button>
     </div>
 
+    <div id="onboarding-groq" class="section hidden">
+      <h2>Before you start</h2>
+      <p class="onboarding-copy">LearnFlow needs a Groq API key to generate help when it detects learning friction.</p>
+      <ol class="onboarding-steps">
+        <li>Open <a href="https://console.groq.com" target="_blank">console.groq.com</a>.</li>
+        <li>Sign up (it's free) and create an API key.</li>
+        <li>Come back here and paste it into LearnFlow.</li>
+      </ol>
+      <button id="groq-next-btn">Ok</button>
+    </div>
+
+    <div id="api-key-section" class="section hidden">
+      <div class="section-title-row">
+        <label for="api-key">Groq API Key</label>
+        <button id="delete-api-key-btn" class="icon-btn hidden" title="Delete API key" aria-label="Delete API key"><span class="trash-icon" aria-hidden="true"></span></button>
+      </div>
+      <input type="password" id="api-key" placeholder="gsk_...">
+      <small>Your key is stored locally and never shared.</small>
+      <button id="save-key-btn">Save API key</button>
+      <div id="delete-api-confirm" class="confirm-row hidden">
+        <span>Delete API key?</span>
+        <button id="confirm-delete-api-key-btn">Yes</button>
+        <button id="cancel-delete-api-key-btn" class="secondary-btn">No</button>
+      </div>
+      <p id="api-key-msg" class="inline-status"></p>
+    </div>
+
     <div id="mode-chooser" class="section hidden">
       <h2>Choose mode</h2>
       <div class="mode-grid">
@@ -77,6 +104,10 @@
             <div class="status-row">
               <span>Extension</span>
               <strong id="extension-status">Checking...</strong>
+            </div>
+            <div class="status-row">
+              <span>API key</span>
+              <strong id="api-key-status">Checking...</strong>
             </div>
             <div class="status-row">
               <span>Current page</span>
@@ -160,6 +191,10 @@
 
         <button id="save-btn">Save preferences</button>
         <p id="status-msg"></p>
+
+        <div class="section api-key-manage">
+          <button id="edit-api-key-btn" class="secondary-btn">Manage API key</button>
+        </div>
       </section>
 
       <section id="tab-session" class="tab-panel hidden">

@@ -31,6 +31,7 @@ const EMOTION_LABELS = {
 
 const state = {
   isEnabled: false,
+  hasApiKey: false,
   popupOpen: false,
   modeChosen: false,
   currentMode: "camera",
@@ -69,6 +70,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.type === "SETTINGS_UPDATED") {
     applySettings(request.settings || {}).then(() => sendResponse({ success: true }));
+    return true;
+  }
+
+  if (request.type === "API_KEY_UPDATED") {
+    handleApiKeyUpdate(Boolean(request.hasApiKey)).then(() => sendResponse({ success: true }));
     return true;
   }
 
@@ -580,6 +586,21 @@ function showNotification(message) {
   setTimeout(() => element.remove(), 5000);
 }
 
+async function handleApiKeyUpdate(hasApiKey) {
+  state.hasApiKey = hasApiKey;
+
+  if (!state.hasApiKey) {
+    await pauseLearnFlow(false);
+    closeOverlay();
+  } else {
+    const settings = await getSettings();
+    await applySettings(settings || {});
+    return;
+  }
+
+  updateStatusChip();
+}
+
 async function applySettings(settings = {}) {
   CONFIG.cooldownMs = Number(settings.cooldownMs || settings.cooldownMinutes || CONFIG.cooldownMs);
   CONFIG.emotionThresholds = {
@@ -593,6 +614,7 @@ async function applySettings(settings = {}) {
   CONFIG.manualBarMode = settings.manualBarMode === "emotions" ? "emotions" : "actions";
 
   state.isEnabled = settings.enabled !== false;
+  state.hasApiKey = Boolean(settings.apiKey);
   state.modeChosen = settings.modeChosen === true;
   state.currentMode = settings.currentMode === "manual" ? "manual" : "camera";
 
@@ -614,7 +636,7 @@ async function applySettings(settings = {}) {
 
   if (state.currentMode === "manual") {
     await pauseLearnFlow(false);
-    showManualBar(true);
+    showManualBar(state.hasApiKey);
     updateStatusChip();
     return;
   }
