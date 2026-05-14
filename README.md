@@ -6,11 +6,9 @@ A Chrome extension that watches your face while you watch YouTube — detecting 
 
 ## Screenshots
 
-**Choose your mode on first launch**
-<img src="screenshots/01-mode-selection.png" width="360" alt="Mode selection">
-
-**Camera Mode — live status dashboard**
-<img src="screenshots/02-camera-mode-controls.png" width="360" alt="Camera mode controls">
+| Choose your mode on first launch | Camera Mode — live status dashboard |
+|:---:|:---:|
+| <img src="screenshots/01-mode-selection.png" width="280" alt="Mode selection"> | <img src="screenshots/02-camera-mode-controls.png" width="280" alt="Camera mode controls"> |
 
 **Manual Mode — action bar chips on the video page**
 ![Action bar overlay](screenshots/03-action-bar.png)
@@ -70,7 +68,7 @@ Sign up at [console.groq.com](https://console.groq.com) and create an API key. I
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (top-right toggle)
 3. Click **Load unpacked**
-4. Select the `learnflow-ai` folder
+4. Select the extension folder (`LearnFlowAI-main` if you downloaded the ZIP, `LearnFlowAI` if you cloned it)
 
 ### 3. Complete the in-extension setup
 
