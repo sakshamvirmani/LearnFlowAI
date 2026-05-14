@@ -7,10 +7,10 @@ A Chrome extension that watches your face while you watch YouTube — detecting 
 ## Screenshots
 
 **Choose your mode on first launch**
-![Mode selection](screenshots/01-mode-selection.png)
+<img src="screenshots/01-mode-selection.png" width="360" alt="Mode selection">
 
 **Camera Mode — live status dashboard**
-![Camera mode controls](screenshots/02-camera-mode-controls.png)
+<img src="screenshots/02-camera-mode-controls.png" width="360" alt="Camera mode controls">
 
 **Manual Mode — action bar chips on the video page**
 ![Action bar overlay](screenshots/03-action-bar.png)
