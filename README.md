@@ -61,42 +61,30 @@ At the end of a session, LearnFlow generates a recap of what you covered and how
 
 ## Setup
 
-### 1. Get a Groq API key
+### 1. Get a free Groq API key
 
-Sign up for free at [console.groq.com](https://console.groq.com) and create an API key.
+Sign up at [console.groq.com](https://console.groq.com) and create an API key. It's free.
 
-### 2. Add your key
-
-Open `background.js` and replace the placeholder on line 1:
-
-```js
-const GROQ_API_KEY = "YOUR_GROQ_API_KEY_HERE";
-```
-
-### 3. Load the extension in Chrome
+### 2. Load the extension in Chrome
 
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (top-right toggle)
 3. Click **Load unpacked**
 4. Select the `learnflow-ai` folder
 
-### 4. Use it
+### 3. Complete the in-extension setup
 
-1. Navigate to any YouTube video
-2. **Open the video transcript** (click `...` below the video → *Show transcript*) — LearnFlow reads it to anchor AI responses to the exact moment you're at, rather than giving generic whole-video answers
-3. Click the LearnFlow AI icon in your toolbar
-4. Choose **Camera Mode** or **Manual Mode**
-5. Toggle the extension on — that's it
+The first time you open the LearnFlow AI popup, it will walk you through:
 
----
+1. **Welcome screen** — brief intro
+2. **Groq API key** — paste your `gsk_...` key; it's stored locally in your browser and never sent anywhere except Groq's API
+3. **Choose mode** — Camera Mode (automatic emotion detection) or Manual Mode (on-demand action chips)
 
-## Optional: Local LLM (no API key needed)
+That's it — no config files to edit.
 
-LearnFlow supports [LM Studio](https://lmstudio.ai) as a local backend. Start a local server on port 1234 and flip the flag in `background.js`:
+### 4. Pro tip: open the transcript first
 
-```js
-const USE_LOCAL_LLM = true;
-```
+Before starting a session, click `...` below the YouTube video → **Show transcript**. LearnFlow reads the transcript panel to anchor its AI responses to the exact moment you're at. Without it, responses fall back to the video title and description only.
 
 ---
 

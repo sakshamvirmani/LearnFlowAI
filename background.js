@@ -205,7 +205,7 @@ async function sendCompletionRequest({ apiKey, prompt, maxTokens, strictJSON }) 
       { role: "user", content: prompt }
     ],
     max_tokens: maxTokens,
-    temperature: 0.2
+    temperature: 0.7
   };
 
   if (strictJSON) {
