@@ -4,6 +4,31 @@ A Chrome extension that watches your face while you watch YouTube — detecting 
 
 ---
 
+## Screenshots
+
+**Choose your mode on first launch**
+![Mode selection](screenshots/01-mode-selection.png)
+
+**Camera Mode — live status dashboard**
+![Camera mode controls](screenshots/02-camera-mode-controls.png)
+
+**Manual Mode — action bar chips on the video page**
+![Action bar overlay](screenshots/03-action-bar.png)
+
+**Frustration detected → instant micro-quiz**
+![Quiz triggered by frustration](screenshots/04-quiz-frustration.png)
+
+**Confused → step-by-step breakdown of the current concept**
+![Breakdown overlay](screenshots/05-breakdown.png)
+
+**Bored → surprising fun fact with a real-world example**
+![Did-you-know card](screenshots/06-funfact-boredom.png)
+
+**Encouragement nudge with a practical next step**
+![Encouragement prompt](screenshots/07-encouragement.png)
+
+---
+
 ## What it does
 
 LearnFlow AI runs in the background as you watch educational YouTube videos. It uses your webcam to read facial expressions in real time and triggers contextual learning interventions when it detects a negative learning signal.
